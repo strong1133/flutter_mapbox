@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/foundation/key.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_mapbox_call_js/views/home.dart';
 import 'package:get/route_manager.dart';
 
 class Root extends StatelessWidget {
@@ -10,13 +11,10 @@ class Root extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Mapbox Map'),
-        ),
-        body: Center(
-          child: Text('asd'),
-        ),
-      ),
+          appBar: AppBar(
+            title: const Text('Mapbox Map'),
+          ),
+          body: Home()),
     );
   }
 }

@@ -5,31 +5,54 @@
         <title>Mapbox</title>
         <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
         <link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+        <script src="config.js"></script>
+
+        <style>
+            body { margin: 0; padding: 0; }
+            #map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; }
+        </style>
     </head>
 
     <body>
-        <div id='map' class='map'></div>
+        <div id="map" class="map"></div>
         <script>
-    
-    
             // This example downloads a truck model from an external OBJ/MTL file, adds it to the map, and drives it around via paths fetched from the Mapbox Directions API
-    
-            if (!config) console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
-    
+
+            if (!config)
+                console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
+
             mapboxgl.accessToken = config.accessToken;
-    
-            var origin = [-122.4340, 37.7353];
+
+            var origin = [126.89630699999998, 37.483169];
             var destination, line;
             var truck;
-    
+
             var map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/dark-v9',
+                container: "map",
+                style: config.style,
                 center: origin,
                 zoom: 16,
                 pitch: 60,
-                bearing: 90
+                bearing: 90,
             });
+
+            function setSource(id, data) {
+                let jsonData = JSON.parse(data);
+                // mapInstance.addSource(id, jsonData);
+                map.addSource(id, {
+                    type: jsonData["type"],
+                    data: JSON.parse(JSON.stringify(jsonData["data"])),
+                });
+            }
+            function addLayer(data) {
+                let jsonData = JSON.parse(data);
+                map.addLayer({
+                    id: jsonData["id"],
+                    type: jsonData["type"],
+                    source: jsonData["source"],
+                    paint: JSON.parse(JSON.stringify(jsonData["paint"])),
+                });
+            }
         </script>
     </body>
 </html>
