@@ -35,6 +35,9 @@
                 pitch: 60,
                 bearing: 90,
             });
+            map.on('mousemove', () => {
+console.log('A mousemove event has occurred.');
+});
 
             function setSource(id, data) {
                 let jsonData = JSON.parse(data);
