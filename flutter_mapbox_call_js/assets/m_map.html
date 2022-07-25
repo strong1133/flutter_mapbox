@@ -8,16 +8,28 @@
         <script src="config.js"></script>
 
         <style>
-            body { margin: 0; padding: 0; }
-            #map { position: absolute; top: 0; bottom: 0; width: 100%; height: 100%; }
+            body {
+                margin: 0;
+                padding: 0;
+            }
+            #map {
+                position: absolute;
+                top: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+            }
         </style>
     </head>
 
     <body>
         <div id="map" class="map"></div>
+        <div style="position: absolute; float: top; top: 50px; left: 20px">
+            <button onclick="addSymbol()">add Symbol</button>
+        </div>
         <script>
             // This example downloads a truck model from an external OBJ/MTL file, adds it to the map, and drives it around via paths fetched from the Mapbox Directions API
-
+    
             if (!config)
                 console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
 
@@ -35,10 +47,10 @@
                 pitch: 60,
                 bearing: 90,
             });
-            map.on('mousemove', () => {
-console.log('A mousemove event has occurred.');
-});
-
+            map.on("mousemove", () => {
+                console.log("A mousemove event has occurred.");
+            });
+            
             function setSource(id, data) {
                 let jsonData = JSON.parse(data);
                 // mapInstance.addSource(id, jsonData);
@@ -56,6 +68,68 @@ console.log('A mousemove event has occurred.');
                     paint: JSON.parse(JSON.stringify(jsonData["paint"])),
                 });
             }
+
+
+            function addSymbol() {
+                map.addSource("my-data", {
+                    type: "geojson",
+                    data: {
+                        type: "FeatureCollection",
+                        features: [
+                            {
+                                type: "Feature",
+                                properties: {
+                       
+                                },
+                                geometry: { type: "Point", coordinates: [126.89630699999998, 37.483169] },
+                                id: "QYlN9rfU1a",
+                            },
+
+                            {
+                                type: "Feature",
+                                properties: {
+                                  
+                                },
+                                geometry: { type: "Point", coordinates: [126.89652699999998, 37.4821169] },
+                                id: "QYlN9rfU1a",
+                            },
+                        ],
+                    },
+                });
+
+                map.addLayer({
+                    id: "point",
+                    type: "circle",
+                    source: "my-data",
+                    paint: {
+                        "circle-radius": 10,
+                        "circle-color": "#F84C4C", // red color
+                    },
+                });
+
+                map.on("mouseenter", "point", (_) => {
+                    map.getCanvas().style.cursor = "pointer";
+                });
+
+                // Change it back to a pointer when it leaves.
+                map.on("mouseleave", "point", (_) => {
+                    map.getCanvas().style.cursor = "";
+                });
+
+                map.on("click", "point", (e) => {
+                    console.log(e.features[0].source);
+                    e.preventDefault();
+                    if (e.defaultPrevented === false) {  map.setPaintProperty('point', 'circle-radius', 15);}
+                  
+
+                    
+                    map.flyTo({
+                        center: e.features[0].geometry.coordinates,
+                    });
+                });
+            }
+
+
         </script>
     </body>
 </html>
