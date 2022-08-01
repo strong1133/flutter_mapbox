@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Mapbox</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="config.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map" class="map"></div>
+    <div style="position: absolute; float: top; top: 50px; left: 20px">
+        <button onclick="addSymbol()">add Symbol</button>
+    </div>
+    <script>
+        // This example downloads a truck model from an external OBJ/MTL file, adds it to the map, and drives it around via paths fetched from the Mapbox Directions API
+
+        if (!config)
+            console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
+
+        mapboxgl.accessToken = config.accessToken;
+
+        var origin = [126.89630699999998, 37.483169];
+        var destination, line;
+        var truck;
+
+        var map = new mapboxgl.Map({
+            container: "map",
+            style: config.style,
+            fadeDuration: 0,
+            center: origin,
+            zoom: 14.5
+        });
+        map.on("mousemove", () => {
+            console.log("A mousemove event has occurred.");
+        });
+
+        const canvas = map.getCanvasContainer();
+
+        function addSymbol() {
+            map.addSource("my-data", {
+                type: "geojson",
+                data: {
+                    type: "FeatureCollection",
+                    features: [
+                        {
+                            type: "Feature",
+                            properties: {
+                                iconImage: "017",
+                                textField: "Symbol",
+                                textSize: 17,
+                                textAnchor: "top",
+                                textOffset: [0, 0.8],
+                                textColor: "#000000",
+                                textHaloColor: "#ffffff",
+                                textHaloWidth: 2.8,
+                                textHaloBlur: 1,
+                                id: "a1",
+
+                            },
+                            geometry: { type: "Point", coordinates: [126.89630699999998, 37.483169] },
+
+                        }
+                    ],
+                },
+            });
+
+            map.addSource("my-data2", {
+                type: "geojson",
+                data: {
+                    type: "FeatureCollection",
+                    features: [
+                        
+
+                        {
+                            type: "Feature",
+                            properties: {
+                                iconImage: "017",
+                                textField: "Symbol",
+                                textSize: 17,
+                                textAnchor: "top",
+                                textOffset: [0, 0.8],
+                                textColor: "#000000",
+                                textHaloColor: "#ffffff",
+                                textHaloWidth: 2.8,
+                                textHaloBlur: 1,
+                                id: "a2",
+
+                            },
+                            geometry: { type: "Point", coordinates: [126.89652699999998, 37.4821169] },
+
+                        },
+                    ],
+                },
+            });
+
+
+            map.addLayer({
+                id: "point",
+                type: "symbol",
+                source: "my-data",
+                layout: {
+                    "icon-image": '017'
+                },
+            });
+
+            map.addLayer({
+                id: "point-highlight",
+                type: "symbol",
+                source: "my-data",
+                layout: {
+                    "icon-image": '017',
+                    'icon-size': 2
+
+                },
+                'filter': ['in', 'id', '']
+            });
+
+            map.on("mouseenter", "point", (_) => {
+                map.getCanvas().style.cursor = "pointer";
+            });
+
+            map.on("mouseenter", "point-highlight", (_) => {
+                map.getCanvas().style.cursor = "move";
+            });
+
+
+            map.on("mouseleave", "point", (_) => {
+                map.getCanvas().style.cursor = "";
+            });
+
+            map.on("mouseleave", "point-highlight", (_) => {
+                map.getCanvas().style.cursor = "";
+            });
+
+            map.on("click", "point", (e) => {
+                map.setFilter('point-highlight', ['in', 'id', e.features[0].properties.id]);
+            });
+
+            map.on('mousedown', 'point-highlight', (e) => {
+                // Prevent the default map drag behavior.
+                e.preventDefault();
+
+                canvas.style.cursor = 'grab';
+                console.log("MOUSE DOWN  ",e.features[0].properties['id']);
+
+                const mySource = map.querySourceFeatures('my-data', {
+                    filter: ['in', 'id',  e.features[0].properties['id']]
+                });
+                mySource[0].geometry.coordinates = [126.89640627632141, 37.483170023501444]
+                console.log("1 ", mySource[0].geometry.coordinates);
+                // map.on('mousemove', (e) => {
+                //     console.log("1 ", mySource);
+                // });
+                map.once('mouseup', onUp);
+            });
+        }
+
+        function onMove(e) {
+            const coords = e.lngLat;
+            // const coords = e.lngLat;
+            console.log("MOUSE MOVE ", e)
+            canvas.style.cursor = 'grabbing';
+            geojson.features[0].geometry.coordinates = [coords.lng, coords.lat];
+            map.getSource('my-data').setData(geojson);
+
+                        const mySource =  map.querySourceFeatures('counties', {
+            filter: ['in', 'id', feature.properties.COUNTY]
+            });
+
+
+            console.log(mySource);
+            // mySource.setCoordinates(coords);
+        }
+
+        function onUp(e) {
+            const coords = e.lngLat;
+
+            // Print the coordinates of where the point had
+            // finished being dragged to on the map.
+            // coordinates.style.display = 'block';
+            // coordinates.innerHTML = `Longitude: ${coords.lng}<br />Latitude: ${coords.lat}`;
+            canvas.style.cursor = '';
+
+            // Unbind mouse/touch events
+            map.off('mousemove', onMove);
+            map.off('touchmove', onMove);
+        }
+    </script>
+</body>
+
+</html>
