@@ -68,3 +68,4 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+flutter_mapbox_call_js/assets/config.js
