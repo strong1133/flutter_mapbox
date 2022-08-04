@@ -95,6 +95,7 @@
                     type: "Feature",
                     properties: {
                         id: "a1",
+                        "dragable":false,
                         "iconImage": '017',
                         'iconSize': 1,
                         "textField": "Symbol1",
@@ -306,10 +307,18 @@
         }
         let targetIdx;
         map.on('mousedown', 'my-data', (e) => {
+            console.log('mousedown occur')
             // Prevent the default map drag behavior.
-            e.preventDefault();
+      
 
             let id = e.features[0].properties['id']
+
+            if(e.features[0].properties.dragable == false){
+                map.off('mousedown', onMove);
+               return
+            }else{
+                e.preventDefault();
+            }
 
 
             // console.log("relatedCounties", relatedCounties);
@@ -375,7 +384,7 @@
             // Set a UI indicator for dragging.
             canvas.style.cursor = 'grabbing';
 
-
+            
             // Update the Point feature in `geojson` coordinates
             // and call setData to the source layer `point` on it.
             geojson.features[targetIdx].geometry.coordinates = [coords.lng, coords.lat];
