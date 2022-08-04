@@ -45,6 +45,7 @@
 
         var map = new mapboxgl.Map({
             container: "map",
+            fadeDuration:0,
             style: config.style,
             center: origin,
             zoom: 16,
@@ -54,6 +55,8 @@
         map.on("mousemove", () => {
             console.log("A mousemove event has occurred.");
         });
+
+
 
         const canvas = map.getCanvasContainer();
 
@@ -75,76 +78,71 @@
             });
         }
 
+        const geojson = {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {
+                        id: "a1",
+                        "iconImage": '017',
+                        'iconSize': 1,
+                        "textField": "Symbol1",
+                        "textOffset": [0, 1.5],
+                    },
+                    geometry: { type: "Point", coordinates: [126.89630699999998, 37.483169] },
+                    id: "a1",
+                },
+                {
+                    type: "Feature",
+                    properties: {
+                        id: "a2",
+                        "iconImage": '014',
+                        'iconSize': 1,
+                        "textField": "Symbol2",
+                        "textOffset": [0, 1.5],
+                    },
+                    geometry: { type: "Point", coordinates: [126.89652699999998, 37.4821169] },
+                    id: "a2",
+                },
+            ],
+        };
+
         function addSymbol() {
             map.addSource("my-data", {
                 type: "geojson",
-                data: {
-                    type: "FeatureCollection",
-                    features: [
-                        {
-                            type: "Feature",
-                            properties: {
-                                id: 1,
-                            },
-                            geometry: { type: "Point", coordinates: [126.89630699999998, 37.483169] },
-                            id: "QYlN9rfU1a",
-                        },
-                        {
-                            type: "Feature",
-                            properties: {
-                                id: 2,
-                            },
-                            geometry: { type: "Point", coordinates: [126.89652699999998, 37.4821169] },
-                            id: "QYlN9rfU1a",
-                        },
-                    ],
-                },
+                data: geojson
             });
 
-            map.addSource("my-data2", {
-                type: "geojson",
-                data: {
-                    type: "FeatureCollection",
-                    features: [
-                        {
-                            type: "Feature",
-                            geometry: {
-                                type: "Polygon",
-                                coordinates: [
-                                    [
-                                        [126.886903055182, 37.4848001985485],
-                                        [126.891636078266, 37.4908081396872],
-                                        [126.89654749206602, 37.483294848898396],
-                                        [126.886903055182, 37.4848001985485],
-                                    ],
-                                ],
-                            },
-                            properties: {},
-                        },
-                    ],
-                },
-            });
+            // map.addSource("my-data2", {
+            //     type: "geojson",
+            //     data: {
+            //         type: "FeatureCollection",
+            //         features: [
+            //             {
+            //                 type: "Feature",
+            //                 geometry: {
+            //                     type: "Polygon",
+            //                     coordinates: [
+            //                         [
+            //                             [126.886903055182, 37.4848001985485],
+            //                             [126.891636078266, 37.4908081396872],
+            //                             [126.89654749206602, 37.483294848898396],
+            //                             [126.886903055182, 37.4848001985485],
+            //                         ],
+            //                     ],
+            //                 },
+            //                 properties: {},
+            //             },
+            //         ],
+            //     },
+            // });
 
-            map.addLayer({
-                id: "point",
-                type: "circle",
-                source: "my-data",
-                paint: {
-                    "circle-radius": 10,
-                    "circle-color": "#F84C4C", // red color
-                },
-            });
+            map.addLayer(
+                { "id": "my-data", "type": "symbol", "source": "my-data", "layout": { "symbol-sort-key": ["get", "zIndex"], "icon-allow-overlap": false, "icon-ignore-placement": false, "icon-size": ["get", "iconSize"], "icon-image": ["get", "iconImage"], "icon-rotate": ["get", "iconRotate"], "icon-offset": ["get", "iconOffset"], "icon-anchor": ["get", "iconAnchor"], "text-field": ["get", "textField"], "text-size": ["get", "textSize"], "text-max-width": ["get", "textMaxWidth"], "text-letter-spacing": ["get", "textLetterSpacing"], "text-justify": ["get", "textJustify"], "text-anchor": ["get", "textAnchor"], "text-rotate": ["get", "textRotate"], "text-transform": ["get", "textTransform"], "text-offset": ["get", "textOffset"], "text-allow-overlap": false, "text-ignore-placement": false }, "paint": { "icon-opacity": ["get", "iconOpacity"], "icon-color": ["get", "iconColor"], "icon-halo-color": ["get", "iconHaloColor"], "icon-halo-width": ["get", "iconHaloWidth"], "icon-halo-blur": ["get", "iconHaloBlur"], "text-opacity": ["get", "textOpacity"], "text-color": ["get", "textColor"], "text-halo-color": ["get", "textHaloColor"], "text-halo-width": ["get", "textHaloWidth"], "text-halo-blur": ["get", "textHaloBlur"] } }
 
-            map.addLayer({
-                id: "big-point",
-                type: "circle",
-                source: "my-data",
-                paint: {
-                    "circle-radius": 25,
-                    "circle-color": "#F84C4C", // red color
-                },
-                filter: ["==", "flag", 1],
-            });
+            );
+
 
             map.addLayer({
                 id: "poly",
@@ -157,21 +155,79 @@
                 filter: ["==", "$type", "Polygon"],
             });
 
-            map.on("mouseenter", "point", (_) => {
+            map.on("mouseenter", "my-data", (_) => {
                 map.getCanvas().style.cursor = "pointer";
             });
+
+            map.on("mouseleave", "my-data", (_) => {
+                map.getCanvas().style.cursor = "";
+            });
+
+
+
             map.on("mouseenter", "poly", (_) => {
                 map.getCanvas().style.cursor = "pointer";
             });
 
             // Change it back to a pointer when it leaves.
-            map.on("mouseleave", "point", (_) => {
-                map.getCanvas().style.cursor = "";
-            });
+
 
             map.on("mouseleave", "poly", (_) => {
                 map.getCanvas().style.cursor = "";
             });
+        }
+        let targetIdx;
+        map.on('mousedown', 'my-data', (e) => {
+            // Prevent the default map drag behavior.
+            e.preventDefault();
+
+            let id = e.features[0].properties['id']
+
+
+            // console.log("relatedCounties", relatedCounties);
+
+            targetIdx = targetGeoJson(id);
+            canvas.style.cursor = 'grab';
+
+            map.on('mousemove', onMove);
+            map.once('mouseup', onUp);
+        });
+
+        function targetGeoJson (id){
+            let _idx;
+            for (let i in geojson.features){
+                console.log( geojson.features);
+                if ( geojson.features[i]['id'] == id){
+                    console.log("idx : ",i);
+                    _idx = i;
+                    break;
+                }
+            }
+            return _idx;
+        }
+
+        function onMove(e) {
+            const coords = e.lngLat;
+
+            // Set a UI indicator for dragging.
+            canvas.style.cursor = 'grabbing';
+       
+
+            // Update the Point feature in `geojson` coordinates
+            // and call setData to the source layer `point` on it.
+            geojson.features[targetIdx].geometry.coordinates = [coords.lng, coords.lat];
+            map.getSource('my-data').setData(geojson);
+        }
+
+        function onUp(e) {
+            const coords = e.lngLat;
+
+
+            canvas.style.cursor = '';
+
+            // Unbind mouse/touch events
+            map.off('mousemove', onMove);
+            map.off('touchmove', onMove);
         }
     </script>
 </body>
