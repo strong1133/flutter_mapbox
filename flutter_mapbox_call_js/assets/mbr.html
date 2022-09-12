@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Mapbox</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="config.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map" class="map"></div>
+    <div style="position: absolute; float: top; top: 50px; left: 20px">
+        <button onclick="addSymbol()">add Symbol</button>
+        <button onclick="removeAll()">Remove Symbol</button>
+    </div>
+    <script>
+        // This example downloads a truck model from an external OBJ/MTL file, adds it to the map, and drives it around via paths fetched from the Mapbox Directions API
+
+        if (!config)
+            console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
+
+        mapboxgl.accessToken = config.accessToken;
+
+        var origin = [126.89630699999998, 37.483169];
+
+        var map = new mapboxgl.Map({
+            container: "map",
+            fadeDuration: 0,
+            style: config.style,
+            center: origin,
+            zoom: 16,
+        });
+
+        var destination, line;
+        var truck;
+        let clickPos;
+        const canvas = map.getCanvasContainer();
+
+
+
+        const lineGeojson = {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {
+                        lineColor: "red",
+                        lineWidth: 10,
+                        'lineOpacity': 0.7
+                    },
+                    geometry: {
+                        type: "LineString",
+                        coordinates: [
+                            [
+                                126.89432144165038,
+                                37.48325303179684
+                            ],
+                            [
+                                126.8926477432251,
+                                37.48161838992951
+                            ],
+                            [
+                                126.88987970352173,
+                                37.47938772718508
+                            ],
+                            [
+                                126.89329147338867,
+                                37.47884282234884
+                            ],
+                            [
+                                126.89558744430542,
+                                37.4785022548084
+                            ],
+                            [
+                                126.89640283584595,
+                                37.47874065224967
+                            ],
+                            [
+                                126.8994927406311,
+                                37.480579692661436
+                            ],
+                            [
+                                126.90120935440062,
+                                37.48267410022554
+                            ],
+                            [
+                                126.89859151840209,
+                                37.48372979560496
+                            ],
+                            [
+                                126.8972611427307,
+                                37.483797904472056
+                            ],
+                            [
+                                126.89537286758421,
+                                37.48456412494854
+                            ],
+                            [
+                                126.89434289932251,
+                                37.48337222303409
+                            ],
+                            [
+                                126.8952441215515,
+                                37.48292951176587
+                            ]
+                        ]
+                    },
+                    id: "sampleLine1"
+                }
+            ],
+        }
+
+        function addSymbol() {
+
+
+            map.addSource("my-data3", {
+                type: "geojson",
+                data: lineGeojson
+            });
+
+            //MBR
+            let bounds = new  mapboxgl.LngLatBounds();
+
+            for(let e of lineGeojson['features']){
+                for (let coordi of e.geometry.coordinates) {
+                    bounds.extend(coordi);
+                }
+            }
+
+            map.fitBounds(bounds, { padding: 20 });
+
+            console.log("@@@ MBR :: bounds :: ", bounds);
+
+            map.addLayer({
+                "id": "my-data3",
+                "type": "line",
+                "source": "my-data3",
+                "layout": {
+                    "line-join": [
+                        "get",
+                        "lineJoin"
+                    ]
+                },
+                "paint": {
+                    "line-opacity": [
+                        "get",
+                        "lineOpacity"
+                    ],
+                    "line-color": [
+                        "get",
+                        "lineColor"
+                    ],
+                    "line-width": [
+                        "get",
+                        "lineWidth"
+                    ],
+                    "line-gap-width": [
+                        "get",
+                        "lineGapWidth"
+                    ],
+                    "line-offset": [
+                        "get",
+                        "lineOffset"
+                    ],
+                    "line-blur": [
+                        "get",
+                        "lineBlur"
+                    ]
+                }
+            }
+            );
+
+
+        }
+
+        function removeAll() {
+
+            map.removeSource('my-data3');
+            map.removeLayer('my-data3');
+        }
+    </script>
+</body>
+
+</html>
