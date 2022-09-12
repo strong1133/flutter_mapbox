@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Mapbox</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+    <script src="config.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map" class="map"></div>
+    <div style="position: absolute; float: top; top: 50px; left: 20px">
+        <button onclick="addSymbol()">add Symbol</button>
+        <button onclick="removeSymbol()">Remove Symbol</button>
+        <button onclick="changeCss()">Remove Symbol</button>
+    </div>
+    <script>
+        // This example downloads a truck model from an external OBJ/MTL file, adds it to the map, and drives it around via paths fetched from the Mapbox Directions API
+
+        if (!config)
+            console.error("Config not set! Make a copy of 'config_template.js', add in your access token, and save the file as 'config.js'.");
+
+        mapboxgl.accessToken = config.accessToken;
+
+        var origin = [126.89630699999998, 37.483169];
+
+        var map = new mapboxgl.Map({
+            container: "map",
+            fadeDuration: 0,
+            style: config.style,
+            center: origin,
+            zoom: 16,
+        });
+
+        var destination, line;
+        var truck;
+        let clickPos;
+        const canvas = map.getCanvasContainer();
+
+        map.on("mousemove", () => {
+            console.log("A mousemove event has occurred.");
+        });
+
+        map.on('click', (e) => {
+            console.log(`A click event has occurred at ${e.lngLat}`);
+        });
+
+        map.on('mousedown', (e) => {
+            console.log('A mousedown event has occurred.', e.lngLat);
+            clickPos = e.lngLat
+        });
+
+
+
+
+        function setSource(id, data) {
+            let jsonData = JSON.parse(data);
+            // mapInstance.addSource(id, jsonData);
+            map.addSource(id, {
+                type: jsonData["type"],
+                data: JSON.parse(JSON.stringify(jsonData["data"])),
+            });
+        }
+        function addLayer(data) {
+            let jsonData = JSON.parse(data);
+            map.addLayer({
+                id: jsonData["id"],
+                type: jsonData["type"],
+                source: jsonData["source"],
+                paint: JSON.parse(JSON.stringify(jsonData["paint"])),
+            });
+        }
+
+        const geojson = {
+            type: "FeatureCollection",
+            features: [
+                {
+                    type: "Feature",
+                    properties: {
+                        id: "a1",
+                        "dragable": false,
+                        "iconImage": 'assetImage1',
+                        'iconSize': 1,
+                        "textField": "Symbol1",
+                        "textOffset": [0, 1.5],
+                    },
+                    geometry: { type: "Point", coordinates: [126.89630699999998, 37.483169] },
+                    id: "a1",
+                },
+                {
+                    type: "Feature",
+                    properties: {
+                        id: "a2",
+                        "iconImage": 'assetImage1',
+                        'iconSize': 1,
+                        "textField": "Symbol2",
+                        "textOffset": [0, 1.5],
+                    },
+                    geometry: { type: "Point", coordinates: [126.89652699999998, 37.4821169] },
+                    id: "a2",
+                },
+            ],
+        };
+
+        function addSymbol() {
+            map.addSource("my-data", {
+                type: "geojson",
+                data: geojson
+            });
+            map.addLayer(
+                { "id": "my-data", "type": "symbol", "source": "my-data", "layout": { "symbol-sort-key": ["get", "zIndex"], "icon-allow-overlap": false, "icon-ignore-placement": false, "icon-size": ["get", "iconSize"], "icon-image": ["get", "iconImage"], "icon-rotate": ["get", "iconRotate"], "icon-offset": ["get", "iconOffset"], "icon-anchor": ["get", "iconAnchor"], "text-field": ["get", "textField"], "text-size": ["get", "textSize"], "text-max-width": ["get", "textMaxWidth"], "text-letter-spacing": ["get", "textLetterSpacing"], "text-justify": ["get", "textJustify"], "text-anchor": ["get", "textAnchor"], "text-rotate": ["get", "textRotate"], "text-transform": ["get", "textTransform"], "text-offset": ["get", "textOffset"], "text-allow-overlap": false, "text-ignore-placement": false }, "paint": { "icon-opacity": ["get", "iconOpacity"], "icon-color": ["get", "iconColor"], "icon-halo-color": ["get", "iconHaloColor"], "icon-halo-width": ["get", "iconHaloWidth"], "icon-halo-blur": ["get", "iconHaloBlur"], "text-opacity": ["get", "textOpacity"], "text-color": ["get", "textColor"], "text-halo-color": ["get", "textHaloColor"], "text-halo-width": ["get", "textHaloWidth"], "text-halo-blur": ["get", "textHaloBlur"] } }
+
+            );
+
+    
+            map.loadImage('https://upload.wikimedia.org/wikipedia/commons/8/89/Black_and_White_Boxed_%28bordered%29.png', (error, image) => {
+                if (error) throw error;
+
+                console.log(image.bytes);
+                map.addImage(
+                    'assetImage1',image,
+                    {
+                        'width': 100,
+                        'height': 50,
+                    },
+                    { 'sdf': false },
+                );
+
+
+            });
+
+        }
+
+
+    </script>
+</body>
+
+</html>
+
+<!-- 
+layerType line
+{"id":"3tSzFg9b7a_0","type":"line","source":"3tSzFg9b7a_0","layout":{"line-join":["get","lineJoin"]},"paint":{"line-opacity":["get","lineOpacity"],"line-color":["get","lineColor"],"line-width":["get","lineWidth"],"line-gap-width":["get","lineGapWidth"],"line-offset":["get","lineOffset"],"line-blur":["get","lineBlur"]}}
+layerType line
+{"id":"3tSzFg9b7a_1","type":"line","source":"3tSzFg9b7a_1","layout":{"line-join":["get","lineJoin"]},"paint":{"line-opacity":["get","lineOpacity"],"line-color":["get","lineColor"],"line-width":["get","lineWidth"],"line-gap-width":["get","lineGapWidth"],"line-offset":["get","lineOffset"],"line-blur":["get","lineBlur"],"line-pattern":["get","linePattern"]}}
+layerType symbol
+{"id":"b7RDnkMyLS_0","type":"symbol","source":"b7RDnkMyLS_0","layout":{"symbol-sort-key":["get","zIndex"],"icon-allow-overlap":false,"icon-ignore-placement":false,"icon-size":["get","iconSize"],"icon-image":["get","iconImage"],"icon-rotate":["get","iconRotate"],"icon-offset":["get","iconOffset"],"icon-anchor":["get","iconAnchor"],"text-field":["get","textField"],"text-size":["get","textSize"],"text-max-width":["get","textMaxWidth"],"text-letter-spacing":["get","textLetterSpacing"],"text-justify":["get","textJustify"],"text-anchor":["get","textAnchor"],"text-rotate":["get","textRotate"],"text-transform":["get","textTransform"],"text-offset":["get","textOffset"],"text-allow-overlap":false,"text-ignore-placement":false},"paint":{"icon-opacity":["get","iconOpacity"],"icon-color":["get","iconColor"],"icon-halo-color":["get","iconHaloColor"],"icon-halo-width":["get","iconHaloWidth"],"icon-halo-blur":["get","iconHaloBlur"],"text-opacity":["get","textOpacity"],"text-color":["get","textColor"],"text-halo-color":["get","textHaloColor"],"text-halo-width":["get","textHaloWidth"],"text-halo-blur":["get","textHaloBlur"]}}
+layerType circle
+{"id":"BoH9PDcRJ8_0","type":"circle","source":"BoH9PDcRJ8_0","layout":{},"paint":{"circle-radius":["get","circleRadius"],"circle-color":["get","circleColor"],"circle-blur":["get","circleBlur"],"circle-opacity":["get","circleOpacity"],"circle-stroke-width":["get","circleStrokeWidth"],"circle-stroke-color":["get","circleStrokeColor"],"circle-stroke-opacity":["get","circleStrokeOpacity"]}}
+layerType fill
+{"id":"Tnp6wNV9Pw_0","type":"fill","source":"Tnp6wNV9Pw_0","layout":{},"paint":{"fill-opacity":["get","fillOpacity"],"fill-color":["get","fillColor"],"fill-outline-color":["get","fillOutlineColor"]}}
+layerType fill
+{"id":"Tnp6wNV9Pw_1","type":"fill","source":"Tnp6wNV9Pw_1","layout":{},"paint":{"fill-opacity":["get","fillOpacity"],"fill-color":["get","fillColor"],"fill-outline-color":["get","fillOutlineColor"],"fill-pattern":["get","fillPattern"]}} -->

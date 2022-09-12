@@ -87,7 +87,7 @@
                 data: {
                     type: "FeatureCollection",
                     features: [
-                        
+
 
                         {
                             type: "Feature",
@@ -159,10 +159,10 @@
                 e.preventDefault();
 
                 canvas.style.cursor = 'grab';
-                console.log("MOUSE DOWN  ",e.features[0].properties['id']);
+                console.log("MOUSE DOWN  ", e.features[0].properties['id']);
 
                 const mySource = map.querySourceFeatures('my-data', {
-                    filter: ['in', 'id',  e.features[0].properties['id']]
+                    filter: ['in', 'id', e.features[0].properties['id']]
                 });
                 mySource[0].geometry.coordinates = [126.89640627632141, 37.483170023501444]
                 console.log("1 ", mySource[0].geometry.coordinates);
@@ -173,6 +173,13 @@
             });
         }
 
+        map.on("click", (e) => {
+            console.log(e);
+            setTimeout(() => {
+                console.log('longpress');
+            }, 5000);
+        });
+
         function onMove(e) {
             const coords = e.lngLat;
             // const coords = e.lngLat;
@@ -181,8 +188,8 @@
             geojson.features[0].geometry.coordinates = [coords.lng, coords.lat];
             map.getSource('my-data').setData(geojson);
 
-                        const mySource =  map.querySourceFeatures('counties', {
-            filter: ['in', 'id', feature.properties.COUNTY]
+            const mySource = map.querySourceFeatures('counties', {
+                filter: ['in', 'id', feature.properties.COUNTY]
             });
 
 
