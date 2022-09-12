@@ -28,6 +28,7 @@
     <div id="map" class="map"></div>
     <div style="position: absolute; float: top; top: 50px; left: 20px">
         <button onclick="addSymbol()">add Symbol</button>
+        <button onclick="addSymbol2()">add Symbol2</button>
         <button onclick="removeAll()">Remove Symbol</button>
     </div>
     <script>
@@ -127,8 +128,70 @@
             ],
         }
 
-        function addSymbol() {
+        const lineGeojson2 = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {},
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [
+                                127.13090300559998,
+                                37.59716402864859
+                            ],
+                            [
+                                127.13052749633788,
+                                37.59935716910893
+                            ],
+                            [
+                                127.13072061538695,
+                                37.60075122478735
+                            ],
+                            [
+                                127.1359133720398,
+                                37.60050471684286
+                            ],
+                            [
+                                127.13678240776062,
+                                37.59732554119757
+                            ],
+                            [
+                                127.13592410087584,
+                                37.59725753595651
+                            ],
+                            [
+                                127.13587045669556,
+                                37.5983031096693
+                            ],
+                            [
+                                127.13525891304016,
+                                37.59833711181977
+                            ],
+                            [
+                                127.13427186012267,
+                                37.59845611922412
+                            ],
+                            [
+                                127.13425040245056,
+                                37.59723203397509
+                            ],
+                            [
+                                127.1318471431732,
+                                37.59718102998604
+                            ],
+                            [
+                                127.13094592094421,
+                                37.59716402864859
+                            ]
+                        ]
+                    }
+                }
+            ]
+        }
 
+        function addSymbol() {
 
             map.addSource("my-data3", {
                 type: "geojson",
@@ -136,15 +199,15 @@
             });
 
             //MBR
-            let bounds = new  mapboxgl.LngLatBounds();
+            let bounds = new mapboxgl.LngLatBounds();
 
-            for(let e of lineGeojson['features']){
+            for (let e of lineGeojson['features']) {
                 for (let coordi of e.geometry.coordinates) {
                     bounds.extend(coordi);
                 }
             }
 
-            map.fitBounds(bounds, { padding: 20 });
+            map.fitBounds(bounds, { padding: 120 });
 
             console.log("@@@ MBR :: bounds :: ", bounds);
 
@@ -189,11 +252,74 @@
 
 
         }
+        function addSymbol2() {
+
+            map.addSource("my-data4", {
+                type: "geojson",
+                data: lineGeojson2
+            });
+
+            //MBR
+            let bounds = new mapboxgl.LngLatBounds();
+
+            for (let e of lineGeojson2['features']) {
+                for (let coordi of e.geometry.coordinates) {
+                    bounds.extend(coordi);
+                }
+            }
+
+            map.fitBounds(bounds, { padding: 100 });
+
+            console.log("@@@ MBR :: bounds :: ", bounds);
+
+            map.addLayer({
+                "id": "my-data4",
+                "type": "line",
+                "source": "my-data4",
+                "layout": {
+                    "line-join": [
+                        "get",
+                        "lineJoin"
+                    ]
+                },
+                "paint": {
+                    "line-opacity": [
+                        "get",
+                        "lineOpacity"
+                    ],
+                    "line-color": [
+                        "get",
+                        "lineColor"
+                    ],
+                    "line-width": [
+                        "get",
+                        "lineWidth"
+                    ],
+                    "line-gap-width": [
+                        "get",
+                        "lineGapWidth"
+                    ],
+                    "line-offset": [
+                        "get",
+                        "lineOffset"
+                    ],
+                    "line-blur": [
+                        "get",
+                        "lineBlur"
+                    ]
+                }
+            }
+            );
+
+
+        }
 
         function removeAll() {
-
-            map.removeSource('my-data3');
             map.removeLayer('my-data3');
+            map.removeSource('my-data3');
+            map.removeLayer('my-data4');
+            map.removeSource('my-data4');
+
         }
     </script>
 </body>
